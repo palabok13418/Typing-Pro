@@ -375,9 +375,9 @@ export default function App({clerk=false}:{clerk?:boolean}){
   }
 
   function renderKeys(row:KeyDef[],rowName:string){
-    return <div className="key-row" key={rowName}>{row.map(key=>{
+    return <div className="key-row" key={rowName} style={{gridTemplateColumns:row.map(key=>String(key.w??1)).join(" ")}}>{row.map(key=>{
       const finger=fingerColors?fingerClass(key.k):"";
-      return <div key={key.k} data-key={key.k} className={"key "+(key.kind==="modifier"?"modifier-key ":"")+finger+(key.k===target?" target":"")} style={{flex:key.w??1,gridColumn:key.gridColumn,gridRow:key.gridRow}}>
+      return <div key={key.k} data-key={key.k} className={"key "+(key.kind==="modifier"?"modifier-key ":"")+finger+(key.k===target?" target":"")} style={{gridColumn:key.gridColumn,gridRow:key.gridRow}}>
         <span className="key-glyph">{key.glyph??""}</span><span className="key-label">{key.label??key.k.toUpperCase()}</span>
       </div>
     })}</div>
@@ -431,9 +431,7 @@ export default function App({clerk=false}:{clerk?:boolean}){
               <div className="main-keyboard">
                 {renderKeys(WINDOWS_NUMBER_ROW,"number-row")}
                 {rows.map((row,i)=>renderKeys(row,"main-row-"+i))}
-                <div className="key-row bottom-row">{bottom.map(key=><div key={key.k} data-key={key.k} className={"key "+(key.kind==="modifier"?"modifier-key ":"")+(fingerColors?fingerClass(key.k):"")+(key.k===target?" target":"")} style={{flex:key.w??1}}>
-                  <span className="key-glyph">{key.glyph??""}</span><span className="key-label">{key.label??key.k.toUpperCase()}</span>
-                </div>)}</div>
+                {renderKeys(bottom,"bottom-row")}
               </div>
               <div className="navigation-keyboard">
                 <div className="nav-grid">{NAVIGATION_GRID.map(key=><div key={key.k} data-key={key.k} className="key nav-key"><span className="key-glyph">{key.glyph??""}</span><span className="key-label">{key.label}</span></div>)}</div>
