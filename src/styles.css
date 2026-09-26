@@ -105,6 +105,28 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px soli
 .numpad-keyboard .key{height:var(--key-size);min-height:var(--key-size)}
 .numpad-keyboard .key[style*="span 2"]{height:auto}
 .bottom-row{margin-bottom:0}
+.keyboard-laptop{
+  --key-size:clamp(31px,3.9vw,44px);
+  padding:14px 14px 13px;
+  border-radius:16px;
+}
+.keyboard-laptop .function-clusters{
+  grid-template-columns:.9fr 4fr 4fr 4fr;
+  gap:9px;
+}
+.keyboard-laptop .function-cluster{gap:5px}
+.keyboard-laptop .function-key{height:26px;min-height:26px;border-radius:5px}
+.laptop-body-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(94px,.17fr);
+  gap:12px;
+  align-items:end
+}
+.laptop-arrows{align-self:end;padding-bottom:2px}
+.keyboard-laptop .arrow-grid{margin-inline:0;gap:4px}
+.keyboard-laptop .arrow-grid .arrow-key{height:var(--key-size);min-height:var(--key-size)}
+.keyboard-laptop .key-row{gap:4px;margin-bottom:4px}
+.keyboard-laptop .key{border-radius:6px;padding:5px 4px}
 .keyboard-note{display:flex;align-items:center;gap:6px;margin-top:10px;color:#8c8f95;font-size:11px}
 
 
@@ -480,6 +502,7 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px soli
 .games-grid{grid-template-columns:1fr}
 @media(max-width:800px){
   .keyboard{min-width:820px}
+  .keyboard-laptop{min-width:720px}
   .keyboard-body-grid{grid-template-columns:15.5fr 4fr 4fr}
   .function-clusters{gap:8px}
   .games-overlay{padding:10px}

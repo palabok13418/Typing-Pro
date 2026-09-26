@@ -122,6 +122,26 @@ export const MAC_BOTTOM_ROW:KeyDef[]=[
   {k:"right-ctrl",label:"Control",glyph:"⌃",w:1.25,kind:"modifier"}
 ];
 
+export const WINDOWS_LAPTOP_BOTTOM_ROW:KeyDef[]=[
+  {k:"left-fn",label:"Fn",glyph:"fn",w:1.1,kind:"modifier"},
+  {k:"left-ctrl",label:"Ctrl",glyph:"⌃",w:1.1,kind:"modifier"},
+  {k:"win",label:"Windows",glyph:"⊞",w:1.1,kind:"modifier"},
+  {k:"left-alt",label:"Alt",glyph:"Alt",w:1.1,kind:"modifier"},
+  {k:"space",label:"Space",glyph:"",w:6.15,kind:"modifier"},
+  {k:"right-alt",label:"Alt",glyph:"Alt",w:1.1,kind:"modifier"},
+  {k:"right-ctrl",label:"Ctrl",glyph:"⌃",w:1.1,kind:"modifier"}
+];
+
+export const MAC_LAPTOP_BOTTOM_ROW:KeyDef[]=[
+  {k:"left-fn",label:"Fn",glyph:"fn",w:1.1,kind:"modifier"},
+  {k:"left-ctrl",label:"Control",glyph:"⌃",w:1.1,kind:"modifier"},
+  {k:"left-option",label:"Option",glyph:"⌥",w:1.1,kind:"modifier"},
+  {k:"left-command",label:"Command",glyph:"⌘",w:1.1,kind:"modifier"},
+  {k:"space",label:"Space",glyph:"",w:6.55,kind:"modifier"},
+  {k:"right-command",label:"Command",glyph:"⌘",w:1.1,kind:"modifier"},
+  {k:"right-option",label:"Option",glyph:"⌥",w:1.1,kind:"modifier"}
+];
+
 export const NAVIGATION_GRID:KeyDef[]=[
   {k:"printscreen",label:"PrtSc",glyph:"⎙",gridColumn:1,gridRow:1},
   {k:"scrolllock",label:"Scroll",glyph:"⇳",gridColumn:2,gridRow:1},
