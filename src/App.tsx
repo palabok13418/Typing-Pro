@@ -8,7 +8,7 @@ import{scoreWebNN}from"./lib/webnn";
 import{createQuiz,nextChallengeWord,scoreQuiz,scoreSentenceChallenge,type ChallengeWord,type QuizScore,type SentenceChallengeScore}from"./lib/quiz";
 import{PersonalModel}from"./lib/personal-model";
 import{VisionBridge}from"./lib/vision-bridge";
-import{ARROW_GRID,FUNCTION_CLUSTERS,MAC_BOTTOM_ROW,MAC_FUNCTION_CLUSTERS,MAC_ROWS,NAVIGATION_GRID,NUMPAD_GRID,WINDOWS_BOTTOM_ROW,WINDOWS_COPILOT_BOTTOM_ROW,WINDOWS_NUMBER_ROW,WINDOWS_ROWS,nextKey,normalizeKey,type KeyDef}from"./lib/keyboard";
+import{ARROW_GRID,FUNCTION_CLUSTERS,MAC_BOTTOM_ROW,MAC_FUNCTION_CLUSTERS,MAC_LAPTOP_BOTTOM_ROW,MAC_ROWS,NAVIGATION_GRID,NUMPAD_GRID,WINDOWS_BOTTOM_ROW,WINDOWS_COPILOT_BOTTOM_ROW,WINDOWS_LAPTOP_BOTTOM_ROW,WINDOWS_NUMBER_ROW,WINDOWS_ROWS,nextKey,normalizeKey,type KeyDef}from"./lib/keyboard";
 import{fingerClass}from"./lib/finger-map";
 import{animateDefinition,animateKeyGuide,animateKeyPress,animateModal,animatePanel,animateSession,animateWord,animateWordExit}from"./lib/animations";
 import{analyzePractice,analyzeQuiz}from"./lib/ai-coach";
@@ -25,6 +25,7 @@ import CountUp from "./components/CountUp";
 import type{GazeState,Progress,QuizResult}from"./types";
 
 type KeyboardStyle="windows"|"mac";
+type KeyboardSize="full"|"laptop";
 type WindowsLayout="legacy"|"copilot";
 const CHECKIN_INTERVAL_SECONDS=30*60;
 
@@ -51,6 +52,7 @@ export default function App({clerk=false}:{clerk?:boolean}){
   const[milestoneQueue,setMilestoneQueue]=useState<ReturnType<typeof crossedMilestones>>([]);
   const[settings,setSettings]=useState(false);
   const[keyboardStyle,setKeyboardStyle]=useState<KeyboardStyle>(()=>localStorage.getItem("typing-pro-keyboard-style")==="mac"?"mac":"windows");
+  const[keyboardSize,setKeyboardSize]=useState<KeyboardSize>(()=>localStorage.getItem("typhelper-keyboard-size")==="laptop"?"laptop":"full");
   const[windowsLayout,setWindowsLayout]=useState<WindowsLayout>(()=>localStorage.getItem("typhelper-windows-layout")==="copilot"?"copilot":"legacy");
   const[fingerColors,setFingerColors]=useState(()=>localStorage.getItem("typing-pro-finger-colors")!=="false");
   const[visionEnabled,setVisionEnabled]=useState(()=>localStorage.getItem("typing-pro-vision-enabled")==="true");
@@ -224,6 +226,7 @@ export default function App({clerk=false}:{clerk?:boolean}){
   },[p.activeSeconds,quiz]);
 
   useEffect(()=>{localStorage.setItem("typing-pro-keyboard-style",keyboardStyle)},[keyboardStyle]);
+  useEffect(()=>{localStorage.setItem("typhelper-keyboard-size",keyboardSize)},[keyboardSize]);
   useEffect(()=>{localStorage.setItem("typhelper-windows-layout",windowsLayout)},[windowsLayout]);
   useEffect(()=>{
     localStorage.setItem("typing-pro-finger-colors",String(fingerColors));
@@ -337,7 +340,9 @@ export default function App({clerk=false}:{clerk?:boolean}){
   const target=nextKey(word,index);
   const percent=word ? Math.min(100,Math.round((index/word.length)*100)) : 0;
   const rows=keyboardStyle==="windows"?WINDOWS_ROWS:MAC_ROWS;
-  const bottom=keyboardStyle==="windows"?(windowsLayout==="copilot"?WINDOWS_COPILOT_BOTTOM_ROW:WINDOWS_BOTTOM_ROW):MAC_BOTTOM_ROW;
+  const bottom=keyboardSize==="laptop"
+    ?(keyboardStyle==="windows"?WINDOWS_LAPTOP_BOTTOM_ROW:MAC_LAPTOP_BOTTOM_ROW)
+    :(keyboardStyle==="windows"?(windowsLayout==="copilot"?WINDOWS_COPILOT_BOTTOM_ROW:WINDOWS_BOTTOM_ROW):MAC_BOTTOM_ROW);
 
   function openWordDetails(){
     detailsRequest.current?.abort();
@@ -419,7 +424,7 @@ export default function App({clerk=false}:{clerk?:boolean}){
         </div>
 
         <div className="keyboard-stage">
-          <div className={"keyboard keyboard-"+keyboardStyle} ref={keyboardRef} aria-label={keyboardStyle==="windows"?"Full-size Windows keyboard visualization":"Full-size Mac keyboard visualization"}>
+          <div className={"keyboard keyboard-"+keyboardStyle+" keyboard-"+keyboardSize} ref={keyboardRef} aria-label={(keyboardSize==="laptop"?"Laptop ":"Full-size ")+(keyboardStyle==="windows"?"Windows":"Mac")+" keyboard visualization"}>
             <div className="function-clusters">
               {(keyboardStyle==="mac"?MAC_FUNCTION_CLUSTERS:FUNCTION_CLUSTERS).map((cluster,index)=><div className={"function-cluster function-cluster-"+index} key={"cluster-"+index}>{cluster.map(key=>
                 <div key={key.k} data-key={key.k} className="key function-key" style={{flex:key.w??1}}>
@@ -427,24 +432,35 @@ export default function App({clerk=false}:{clerk?:boolean}){
                 </div>
               )}</div>)}
             </div>
-            <div className="keyboard-body-grid">
-              <div className="main-keyboard">
-                {renderKeys(WINDOWS_NUMBER_ROW,"number-row")}
-                {rows.map((row,i)=>renderKeys(row,"main-row-"+i))}
-                {renderKeys(bottom,"bottom-row")}
-              </div>
-              <div className="navigation-keyboard">
-                <div className="nav-grid">{NAVIGATION_GRID.map(key=><div key={key.k} data-key={key.k} className="key nav-key"><span className="key-glyph">{key.glyph??""}</span><span className="key-label">{key.label}</span></div>)}</div>
-                <div className="arrow-grid">{ARROW_GRID.map(key=><div key={key.k} data-key={key.k} className="key arrow-key"><span className="key-glyph">{key.glyph}</span></div>)}</div>
-              </div>
-              <div className="numpad-keyboard">
-                {NUMPAD_GRID.map(key=><div key={key.k} data-key={key.k} className={"key num-key "+(key.rowSpan?"row-span":"")} style={{gridColumn:key.k==="numpad-0"?"span 2":key.gridColumn,gridRow:key.rowSpan?"span "+key.rowSpan:key.gridRow}}>
-                  <span className="key-glyph">{key.glyph??""}</span><span className="key-label">{key.label}</span>
-                </div>)}
-              </div>
-            </div>
+            {keyboardSize==="laptop"
+              ?<div className="laptop-body-grid">
+                  <div className="main-keyboard">
+                    {renderKeys(WINDOWS_NUMBER_ROW,"number-row")}
+                    {rows.map((row,i)=>renderKeys(row,"main-row-"+i))}
+                    {renderKeys(bottom,"bottom-row")}
+                  </div>
+                  <div className="laptop-arrows">
+                    <div className="arrow-grid">{ARROW_GRID.map(key=><div key={key.k} data-key={key.k} className="key arrow-key"><span className="key-glyph">{key.glyph}</span></div>)}</div>
+                  </div>
+                </div>
+              :<div className="keyboard-body-grid">
+                  <div className="main-keyboard">
+                    {renderKeys(WINDOWS_NUMBER_ROW,"number-row")}
+                    {rows.map((row,i)=>renderKeys(row,"main-row-"+i))}
+                    {renderKeys(bottom,"bottom-row")}
+                  </div>
+                  <div className="navigation-keyboard">
+                    <div className="nav-grid">{NAVIGATION_GRID.map(key=><div key={key.k} data-key={key.k} className="key nav-key"><span className="key-glyph">{key.glyph??""}</span><span className="key-label">{key.label}</span></div>)}</div>
+                    <div className="arrow-grid">{ARROW_GRID.map(key=><div key={key.k} data-key={key.k} className="key arrow-key"><span className="key-glyph">{key.glyph}</span></div>)}</div>
+                  </div>
+                  <div className="numpad-keyboard">
+                    {NUMPAD_GRID.map(key=><div key={key.k} data-key={key.k} className={"key num-key "+(key.rowSpan?"row-span":"")} style={{gridColumn:key.k==="numpad-0"?"span 2":key.gridColumn,gridRow:key.rowSpan?"span "+key.rowSpan:key.gridRow}}>
+                      <span className="key-glyph">{key.glyph??""}</span><span className="key-label">{key.label}</span>
+                    </div>)}
+                  </div>
+                </div>}
           </div>
-          <div className="keyboard-note"><Activity size={13}/><span>{physicalKeyboard?.exactDevice?physicalKeyboard.name:(keyboardStyle==="windows"?"Windows keyboard":"Mac keyboard")} · the trainer learns from every correct and incorrect press</span></div>
+          <div className="keyboard-note"><Activity size={13}/><span>{physicalKeyboard?.exactDevice?physicalKeyboard.name:((keyboardSize==="laptop"?"Laptop ":"")+(keyboardStyle==="windows"?"Windows keyboard":"Mac keyboard"))} · the trainer learns from every correct and incorrect press</span></div>
         </div>
       </section>
 
@@ -482,6 +498,8 @@ export default function App({clerk=false}:{clerk?:boolean}){
       close={()=>setSettings(false)}
       keyboardStyle={keyboardStyle}
       setKeyboardStyle={setKeyboardStyle}
+      keyboardSize={keyboardSize}
+      setKeyboardSize={setKeyboardSize}
       windowsLayout={windowsLayout}
       setWindowsLayout={setWindowsLayout}
       physicalKeyboard={physicalKeyboard}
@@ -515,10 +533,12 @@ export function ComputerRequiredScreen(){
   </main>
 }
 
-function SettingsModal({close,keyboardStyle,setKeyboardStyle,windowsLayout,setWindowsLayout,physicalKeyboard,setPhysicalKeyboard,hasWebHID,connectPhysicalKeyboard,keyboardError,setKeyboardError,performanceMode,setPerformanceMode,visionEnabled,setVisionEnabled,fingerColors,setFingerColors}:{
+function SettingsModal({close,keyboardStyle,setKeyboardStyle,keyboardSize,setKeyboardSize,windowsLayout,setWindowsLayout,physicalKeyboard,setPhysicalKeyboard,hasWebHID,connectPhysicalKeyboard,keyboardError,setKeyboardError,performanceMode,setPerformanceMode,visionEnabled,setVisionEnabled,fingerColors,setFingerColors}:{
   close:()=>void;
   keyboardStyle:KeyboardStyle;
   setKeyboardStyle:(value:KeyboardStyle)=>void;
+  keyboardSize:KeyboardSize;
+  setKeyboardSize:(value:KeyboardSize)=>void;
   windowsLayout:WindowsLayout;
   setWindowsLayout:(value:WindowsLayout)=>void;
   physicalKeyboard:KeyboardProfile|null;
@@ -554,6 +574,13 @@ function SettingsModal({close,keyboardStyle,setKeyboardStyle,windowsLayout,setWi
             <div className="settings-choice-pills" role="group" aria-label="Keyboard style">
               <button className={keyboardStyle==="windows"?"settings-pill active":"settings-pill"} onClick={()=>setKeyboardStyle("windows")}>Windows</button>
               <button className={keyboardStyle==="mac"?"settings-pill active":"settings-pill"} onClick={()=>setKeyboardStyle("mac")}>Mac</button>
+            </div>
+          </div>
+          <div className="settings-row">
+            <div><strong>Keyboard size</strong><span>{keyboardSize==="laptop"?"Laptop layout":"Full-size desktop layout"}</span></div>
+            <div className="settings-choice-pills" role="group" aria-label="Keyboard size">
+              <button className={keyboardSize==="full"?"settings-pill active":"settings-pill"} onClick={()=>setKeyboardSize("full")}>Full-size</button>
+              <button className={keyboardSize==="laptop"?"settings-pill active":"settings-pill"} onClick={()=>setKeyboardSize("laptop")}>Laptop</button>
             </div>
           </div>
           {keyboardStyle==="windows"&&<div className="settings-row compact-row">
